@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnInit, AfterViewInit } from "@angular/core";
+import { Component, ViewChild, OnInit, AfterViewInit, HostListener } from "@angular/core";
 import { HttpService } from "./http.service";
 import { firstValueFrom, lastValueFrom, Observable, Subscription } from "rxjs";
 import {
@@ -12,6 +12,8 @@ import {
   ApexXAxis,
   ApexTooltip
 } from "ng-apexcharts";
+import { dataSeries } from "./data-series";
+
 
 @Component({
   selector: "app-root",
@@ -29,7 +31,17 @@ export class AppComponent {
   public xaxis: ApexXAxis;
   public tooltip: ApexTooltip;
 
+  screenHeight: number;
+  screenWidth: number;
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event?) {
+   this.screenHeight = window.innerHeight - 100
+   this.screenWidth = window.innerWidth;
+}
+
   constructor(private _http: HttpService) {
+    this.onResize();
   }
 
   public initChartData(): void {
@@ -37,7 +49,7 @@ export class AppComponent {
     let dates = [];
     for (let i = 0; i < 120; i++) {
       ts2 = ts2 + 86400000;
-      dates.push([ts2, this.dividedByArray]); //dataSeries[1][i].value]
+      dates.push([ts2, dataSeries[1][i].value]);
     }
 
     this.series = [
@@ -49,7 +61,7 @@ export class AppComponent {
     this.chart = {
       type: "area",
       stacked: false,
-      height: 350,
+      height: this.screenHeight,
       zoom: {
         type: "x",
         enabled: true,
@@ -96,7 +108,7 @@ export class AppComponent {
       shared: false,
       y: {
         formatter: function(val) {
-          return (val / 1000000).toFixed(0);
+          return (val / 100000).toFixed(0);
         }
       }
     };
@@ -107,20 +119,22 @@ export class AppComponent {
   url1: string = "https://api.coingecko.com/api/v3/coins/ethereum/market_chart/range?vs_currency=usd&from=1577836800&to=1646115272";
   url2: string = "https://api.coingecko.com/api/v3/coins/terra-luna/market_chart/range?vs_currency=usd&from=1577836800&to=1646115272"
   dividedByArray: number[] = [];
+  days: number[] = [];
 
   async ngOnInit(): Promise<void> {
-    let ethJson = await firstValueFrom(this._http.getUrl(this.url1))
-    let terraJson = await firstValueFrom(this._http.getUrl(this.url2))
+    // let ethJson = await firstValueFrom(this._http.getUrl(this.url1))
+    // let terraJson = await firstValueFrom(this._http.getUrl(this.url2))
 
-    console.log(ethJson, terraJson)
-    console.log({Value: ethJson['prices'][20][1]})
+    // console.log(ethJson, terraJson)
+    // console.log({Value: ethJson['prices'][20][1]})
 
-    for (let i = 0; i < ethJson['prices'].length; i++) {
-      // console.log(terraJson['prices'][i][1]/ethJson['prices'][i][1])
-      this.dividedByArray.push(terraJson['prices'][i][1]/ethJson['prices'][i][1])
-    }
+    // for (let i = 0; i < ethJson['prices'].length; i++) {
+    //   // console.log(terraJson['prices'][i][1]/ethJson['prices'][i][1])
+    //   this.dividedByArray.push(terraJson['prices'][i][1]/ethJson['prices'][i][1])
+    //   this.days.push(i)
+    // }
 
-    console.log(this.dividedByArray)
+    // console.log(this.dividedByArray)
   }
 
   ngAfterViewInit() {
