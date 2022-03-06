@@ -1,5 +1,6 @@
 import { Component, ViewChild, OnInit, AfterViewInit, HostListener } from "@angular/core";
 import { HttpService } from "./../http.service";
+import { MessengerService } from "../messenger.service";
 import { firstValueFrom, lastValueFrom, Observable, Subscription } from "rxjs";
 import {
   ApexAxisChartSeries,
@@ -35,11 +36,11 @@ export class ChartsComponent implements OnInit {
 
   @HostListener('window:resize', ['$event'])
   onResize(event?) {
-   this.screenHeight = window.innerHeight - 100
-   this.screenWidth = window.innerWidth;
-}
+    this.screenHeight = window.innerHeight - 100
+    this.screenWidth = window.innerWidth;
+  }
 
-  constructor(private _http: HttpService) {
+  constructor(private _http: HttpService, private messageService: MessengerService) {
     this.onResize();
   }
 
@@ -99,78 +100,78 @@ export class ChartsComponent implements OnInit {
       reversed: false,
       logarithmic: false,
       logBase: 10,
-      tickAmount:6,
+      tickAmount: 6,
       min: 0,
       max: 50,//Math.max(...this.dividedByArray),
       forceNiceScale: false,
       floating: false,
       decimalsInFloat: 4,
       labels: {
-          show: true,
-          align: 'right',
-          minWidth: 0,
-          maxWidth: 160,
-          style: {
-              colors: [],
-              fontSize: '12px',
-              fontFamily: 'Helvetica, Arial, sans-serif',
-              fontWeight: 400,
-              cssClass: 'apexcharts-yaxis-label',
-          },
-          offsetX: 0,
-          offsetY: 0,
-          rotate: 0,
-          // formatter: (value) => { return val },
+        show: true,
+        align: 'right',
+        minWidth: 0,
+        maxWidth: 160,
+        style: {
+          colors: [],
+          fontSize: '12px',
+          fontFamily: 'Helvetica, Arial, sans-serif',
+          fontWeight: 400,
+          cssClass: 'apexcharts-yaxis-label',
+        },
+        offsetX: 0,
+        offsetY: 0,
+        rotate: 0,
+        // formatter: (value) => { return val },
       },
       axisBorder: {
-          show: true,
-          color: '#78909C',
-          offsetX: 0,
-          offsetY: 0
+        show: true,
+        color: '#78909C',
+        offsetX: 0,
+        offsetY: 0
       },
       axisTicks: {
-          show: true,
-          // borderType: 'solid',
-          color: '#78909C',
-          width: 6,
-          offsetX: 0,
-          offsetY: 0
+        show: true,
+        // borderType: 'solid',
+        color: '#78909C',
+        width: 6,
+        offsetX: 0,
+        offsetY: 0
       },
       title: {
-          text: "Luna / Ethereum price",
-          rotate: -90,
-          offsetX: 0,
-          offsetY: 0,
-          style: {
-              color: undefined,
-              fontSize: '18px',
-              fontFamily: 'Helvetica, Arial, sans-serif',
-              fontWeight: 600,
-              cssClass: 'apexcharts-yaxis-title',
-          },
+        text: "Luna / Ethereum price",
+        rotate: -90,
+        offsetX: 0,
+        offsetY: 0,
+        style: {
+          color: undefined,
+          fontSize: '18px',
+          fontFamily: 'Helvetica, Arial, sans-serif',
+          fontWeight: 600,
+          cssClass: 'apexcharts-yaxis-title',
+        },
       },
       crosshairs: {
-          show: true,
-          position: 'back',
-          stroke: {
-              color: '#b6b6b6',
-              width: 1,
-              dashArray: 0,
-          },
+        show: true,
+        position: 'back',
+        stroke: {
+          color: '#b6b6b6',
+          width: 1,
+          dashArray: 0,
+        },
       },
       tooltip: {
-          enabled: true,
-          offsetX: 0,
+        enabled: true,
+        offsetX: 0,
       },
-      
-  };
+
+    };
     this.xaxis = {
       type: "datetime"
     };
     this.tooltip = {
       shared: false,
       y: {
-        formatter: function(val) {
+        formatter: function (val) {
           return (val / 0.1).toFixed(0);
         }
       }
@@ -188,7 +189,16 @@ export class ChartsComponent implements OnInit {
   dates: any[] = [];
   stonks: any[] = [];
 
+  subscription: Subscription;
+
   async ngOnInit(): Promise<void> {
+    //----------
+    // this.subscription = this.messageService.onMessage().subscribe(
+    //   message => {
+    //     console.log(message)
+    //   });
+    console.log(this.messageService.getData())
+    //----------
     let firstToken = await firstValueFrom(this._http.getUrl(this.url1))
     let secondToken = await firstValueFrom(this._http.getUrl(this.url2))
     let stocks = await firstValueFrom(this._http.getUrl(this.url3))
@@ -199,16 +209,16 @@ export class ChartsComponent implements OnInit {
     console.log(keys)
 
     console.log(secondToken, firstToken)
-    console.log({Value: secondToken['prices'][20][1]})
+    console.log({ Value: secondToken['prices'][20][1] })
 
     for (let i = 0; i < secondToken['prices'].length; i++) {
       try {
-        this.dividedByArray.push(firstToken['prices'][i][1]/secondToken['prices'][i][1])
-        this.dates.push([secondToken['prices'][i][0], firstToken['prices'][i][1]/secondToken['prices'][i][1]])
+        this.dividedByArray.push(firstToken['prices'][i][1] / secondToken['prices'][i][1])
+        this.dates.push([secondToken['prices'][i][0], firstToken['prices'][i][1] / secondToken['prices'][i][1]])
         this.stonks.push([Math.floor(new Date(keys[i]).getTime()), stocks['Time Series (Daily)'][keys[i]]['4. close']])
         console.log()
-      } catch(error) {
-          console.log("One was longer")
+      } catch (error) {
+        console.log("One was longer")
       }
     }
 

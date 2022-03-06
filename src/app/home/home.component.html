@@ -1,0 +1,47 @@
+<p>What would you like to compare?</p>
+
+<div [ngSwitch]="switchCondition">
+    <ng-container *ngSwitchCase="0">
+        <div (click)="getCategory(security)" *ngFor="let security of securities">{{security}}</div>
+    </ng-container>
+    <ng-container *ngSwitchCase="'A Cryptocurrency'">
+        <div (click)="getCategory(crypto)" *ngFor="let crypto of cryptos">{{crypto}}</div>
+    </ng-container>
+    <ng-container *ngSwitchCase="'A Stock/ETF'">
+        <div (click)="getCategory(stock)" *ngFor="let stock of stocks">{{stock}}</div>
+    </ng-container>
+    <ng-container *ngSwitchCase="'A Commodity'">
+        <div (click)="getCategory(commodity)" *ngFor="let commodity of commodities">{{commodity}}</div>
+    </ng-container>
+    <ng-container *ngSwitchCase="'A Fiat Currency'">
+        <div (click)="getCategory(fiat)" *ngFor="let fiat of fiats">{{fiat}}</div>
+    </ng-container>
+    <ng-container *ngSwitchDefault>
+        <div style="font-weight: 900">{{switchCondition}}</div>
+    </ng-container>
+</div>
+
+<p>TO</p>
+
+<div [ngSwitch]="switchCondition2">
+    <ng-container *ngSwitchCase="0">
+        <div (click)="getCategory2(security)" *ngFor="let security of securities">{{security}}</div>
+    </ng-container>
+    <ng-container *ngSwitchCase="'A Cryptocurrency'">
+        <div (click)="getCategory2(crypto)" *ngFor="let crypto of cryptos">{{crypto}}</div>
+    </ng-container>
+    <ng-container *ngSwitchCase="'A Stock/ETF'">
+        <div (click)="getCategory2(stock)" *ngFor="let stock of stocks">{{stock}}</div>
+    </ng-container>
+    <ng-container *ngSwitchCase="'A Commodity'">
+        <div (click)="getCategory2(commodity)" *ngFor="let commodity of commodities">{{commodity}}</div>
+    </ng-container>
+    <ng-container *ngSwitchCase="'A Fiat Currency'">
+        <div (click)="getCategory2(fiat)" *ngFor="let fiat of fiats">{{fiat}}</div>
+    </ng-container>
+    <ng-container *ngSwitchDefault>
+        <div style="font-weight: 900">{{switchCondition2}}</div>
+    </ng-container>
+</div>
+
+<button (click)="dataSubmission()" href="#" routerLink="/chart">SUBMIT</button>
