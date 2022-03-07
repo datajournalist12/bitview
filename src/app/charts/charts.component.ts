@@ -192,7 +192,7 @@ export class ChartsComponent implements OnInit {
   timeseries1: any;
   timeseries2: any;
 
-  stock_code: string = "AHPI"
+  stock_code: string = "TSLA"
   async getAlphaVantage() {
     let data = await firstValueFrom(this._http.getUrl(`https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${this.stock_code}&outputsize=full&apikey=BQCUKE3R9K0EQ76H`))
 
