@@ -13,6 +13,7 @@ import {
   ApexXAxis,
   ApexTooltip
 } from "ng-apexcharts";
+import { ColdObservable } from "rxjs/internal/testing/ColdObservable";
 
 @Component({
   selector: 'app-charts',
@@ -55,7 +56,7 @@ export class ChartsComponent implements OnInit {
     this.series = [
       {
         name: "XYZ MOTORS",
-        data: this.stonks//this.dates
+        data: this.final_timeseries
       }
     ];
     this.chart = {
@@ -102,7 +103,7 @@ export class ChartsComponent implements OnInit {
       logBase: 10,
       tickAmount: 6,
       min: 0,
-      max: 50,//Math.max(...this.dividedByArray),
+      max: Math.max(...this.biggest_number),
       forceNiceScale: false,
       floating: false,
       decimalsInFloat: 4,
@@ -178,61 +179,86 @@ export class ChartsComponent implements OnInit {
     };
   }
 
-  token1: string = "ethereum"
-  token2: string = "tether"
-
-  url1: string = `https://api.coingecko.com/api/v3/coins/${this.token1}/market_chart/range?vs_currency=usd&from=1577836800&to=1646349172`;
-  url2: string = `https://api.coingecko.com/api/v3/coins/${this.token2}/market_chart/range?vs_currency=usd&from=999999999&to=1646349172`;
-  url3: string = "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=AHPI&outputsize=full&apikey=BQCUKE3R9K0EQ76H"
-  dividedByArray: any = [];
-  days: number[] = [];
-  dates: any[] = [];
-  stonks: any[] = [];
-
-  subscription: Subscription;
-
-  async ngOnInit(): Promise<void> {
-    //----------
-    // this.subscription = this.messageService.onMessage().subscribe(
-    //   message => {
-    //     console.log(message)
-    //   });
-    console.log(this.messageService.getData())
-    //----------
-    let firstToken = await firstValueFrom(this._http.getUrl(this.url1))
-    let secondToken = await firstValueFrom(this._http.getUrl(this.url2))
-    let stocks = await firstValueFrom(this._http.getUrl(this.url3))
-
-    let keys = Object.keys(stocks['Time Series (Daily)'])
-    console.log(stocks['Time Series (Daily)']['2022-03-02']['4. close'])
-
-    console.log(keys)
-
-    console.log(secondToken, firstToken)
-    console.log({ Value: secondToken['prices'][20][1] })
-
-    for (let i = 0; i < secondToken['prices'].length; i++) {
-      try {
-        this.dividedByArray.push(firstToken['prices'][i][1] / secondToken['prices'][i][1])
-        this.dates.push([secondToken['prices'][i][0], firstToken['prices'][i][1] / secondToken['prices'][i][1]])
-        this.stonks.push([Math.floor(new Date(keys[i]).getTime()), stocks['Time Series (Daily)'][keys[i]]['4. close']])
-        console.log()
-      } catch (error) {
-        console.log("One was longer")
-      }
-    }
-
-    console.log(this.stonks)
-    console.log(this.dates)
-    console.log(this.dividedByArray)
-    console.log(Math.max(...this.dividedByArray))
-    console.log(this.yaxis)
+  async ngOnInit() {
+    await this.getCoinGecko()
+    await this.getAlphaVantage()
+    this.zipper()
+    console.log("Hello world")
+    console.log(this.final_timeseries)
     this.initChartData();
   }
 
-  ngAfterViewInit() {
-    // this.initChartData();
+
+  timeseries1: any;
+  timeseries2: any;
+
+  stock_code: string = "AHPI"
+  async getAlphaVantage() {
+    let data = await firstValueFrom(this._http.getUrl(`https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${this.stock_code}&outputsize=full&apikey=BQCUKE3R9K0EQ76H`))
+
+    let keys = Object.keys(data["Time Series (Daily)"])
+    let timeseries = []
+    for (let i = 0; i < keys.length; i++) {
+      timeseries.push([Math.floor(new Date(keys[i]).getTime()), parseFloat(data["Time Series (Daily)"][keys[i]]['4. close'])]);
+    }
+
+    this.timeseries1 = timeseries
+    console.log(this.timeseries1[0])
   }
+
+  crypto_code: string = 'bitcoin';
+  async getCoinGecko() {
+    let data = await firstValueFrom(this._http.getUrl(`https://api.coingecko.com/api/v3/coins/${this.crypto_code}/market_chart?vs_currency=usd&days=max&interval=daily`))
+
+    this.timeseries2 = data['prices'].reverse().slice(1)
+
+    console.log(this.timeseries2[0])
+  }
+
+  final_timeseries: any[] = [];
+  biggest_number: any[] = [];
+
+  zipper() {
+    if (this.timeseries1.length > this.timeseries2.length) {
+      var series_length = this.timeseries1.length;
+    } else {
+      var series_length = this.timeseries2.length;
+    }
+
+    var offset1 = 0;
+    var offset2 = 0;
+    var timeseries_transfored = []
+
+    //Deals with situations where both timeseries dont match exactly
+    for (let i = 0; i < series_length; i++) {
+
+      try {
+
+        if (this.timeseries1[i][0] === this.timeseries2[i][0]) {
+          timeseries_transfored.push(this.timeseries1[i][0], this.timeseries1[i][1] / this.timeseries2[i][1])
+        } else if (this.timeseries1[i][0] > this.timeseries2[i][0]) {
+          offset1 = Math.round((this.timeseries1[i][0] - this.timeseries2[i][0]) / 86400000)
+        } else {
+          offset2 = Math.round((this.timeseries2[i][0] - this.timeseries1[i][0]) / 86400000)
+        }
+
+        // console.log([this.timeseries1[i][0], this.timeseries1[i][1]])
+        // console.log([this.timeseries2[i][0], this.timeseries2[i][1]])
+        // console.log(offset1, offset2)
+        // console.log({Adjusted: this.timeseries2[i+offset2][0]})
+
+        //zipping logic
+        //this.final_timeseries.push(1)
+        this.final_timeseries.push([this.timeseries2[i+offset2][0], this.timeseries1[i][1]/this.timeseries2[i+offset2][1]])
+        this.biggest_number.push(this.timeseries1[i][1]/this.timeseries2[i+offset2][1])
+        // console.error(error)
+      } catch (e) {
+        console.error(e)
+      }
+    }
+  } 
+  //timeseries2 = coingecko
+  //timeseries1 = stocks
 
 
 }
