@@ -19,7 +19,7 @@ export class HomeComponent implements OnInit {
     if (this.submission[0].security_type === null) {
       this.submission[0].security_type = category
     } else{
-      this.submission[0].security_name = category
+      this.submission[0].security_name = category.toLowerCase()
     }
   }
 
@@ -29,7 +29,7 @@ export class HomeComponent implements OnInit {
     if (this.submission[1].security_type === null) {
       this.submission[1].security_type = category
     } else{
-      this.submission[1].security_name = category
+      this.submission[1].security_name = category.toLowerCase()
     }
   }
 
@@ -40,7 +40,7 @@ export class HomeComponent implements OnInit {
   
   securities: string[] = ['A Cryptocurrency', 'A Stock/ETF', 'A Commodity', 'A Fiat Currency' ]
   cryptos: string[] = ['Bitcoin', "Ethereum", "Chainlink", "Search list"]
-  stocks: string[] = ['GME', "AMC", "Tesla", "Search list"]
+  stocks: string[] = ['GME', "AMC", "TSLA", "Search list"]
   commodities: string[] = ['Gold', "Crude Oil", "Coffee", "Search list"]
   fiats: string[] = ['USD', "CHF", "GBP", "Search list"]
 

@@ -181,8 +181,7 @@ export class ChartsComponent implements OnInit {
 
   async ngOnInit() {
     console.log(this.messageService.getData())
-    await this.getCoinGecko()
-    await this.getAlphaVantage()
+    await this.selector()
     this.zipper()
     console.log("Hello world")
     console.log(this.final_timeseries)
@@ -190,30 +189,52 @@ export class ChartsComponent implements OnInit {
   }
 
 
+  async selector() {
+    var selections = this.messageService.getData();
+
+    if (selections[0]['security_type'] === 'A Cryptocurrency') {
+      console.log("Selection 1 crypto triggered")
+      this.timeseries1 = await this.getCoinGecko(selections[0]['security_name'])
+    } else if (selections[0]['security_type'] === 'A Stock/ETF') {
+      console.log("Selection 1 stocks triggered")
+      this.timeseries1 = await this.getAlphaVantage(selections[0]['security_name'])
+    } else {
+      console.log("Not yet formatted")
+    }
+
+    if (selections[1]['security_type'] === 'A Cryptocurrency') {
+      console.log("Selection 2 crypto triggered")
+      this.timeseries2 = await this.getCoinGecko(selections[1]['security_name'])
+    } else if (selections[1]['security_type'] === 'A Stock/ETF') {
+      console.log("Selection 2 stocks triggered")
+      this.timeseries2 = await this.getAlphaVantage(selections[1]['security_name'])
+    } else {
+      console.log("Not yet formatted")
+    }
+  }
+
   timeseries1: any;
   timeseries2: any;
 
-  stock_code: string = "AMZN"
-  async getAlphaVantage() {
-    let data = await firstValueFrom(this._http.getUrl(`https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${this.stock_code}&outputsize=full&apikey=BQCUKE3R9K0EQ76H`))
+  async getAlphaVantage(stock_code) {
+    let data = await firstValueFrom(this._http.getUrl(`https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${stock_code}&outputsize=full&apikey=BQCUKE3R9K0EQ76H`))
 
+    console.log({Stockdata: data})
     let keys = Object.keys(data["Time Series (Daily)"])
     let timeseries = []
     for (let i = 0; i < keys.length; i++) {
       timeseries.push([Math.floor(new Date(keys[i]).getTime()), parseFloat(data["Time Series (Daily)"][keys[i]]['4. close'])]);
     }
 
-    this.timeseries1 = timeseries
-    console.log(this.timeseries1[0])
+    // console.log(timeseries)
+    return timeseries
   }
 
-  crypto_code: string = 'bitcoin';
-  async getCoinGecko() {
-    let data = await firstValueFrom(this._http.getUrl(`https://api.coingecko.com/api/v3/coins/${this.crypto_code}/market_chart?vs_currency=usd&days=max&interval=daily`))
-
-    this.timeseries2 = data['prices'].reverse().slice(1)
-
-    console.log(this.timeseries2[0])
+  async getCoinGecko(crypto_code) {
+    let data = await firstValueFrom(this._http.getUrl(`https://api.coingecko.com/api/v3/coins/${crypto_code}/market_chart?vs_currency=usd&days=max&interval=daily`))
+    console.log({Cryptodata: data})
+    // console.log(data['prices'].reverse().slice(1))
+    return data['prices'].reverse().slice(1)
   }
 
   final_timeseries: any[] = [];
@@ -250,14 +271,14 @@ export class ChartsComponent implements OnInit {
 
         //zipping logic
         //this.final_timeseries.push(1)
-        this.final_timeseries.push([this.timeseries2[i+offset2][0], this.timeseries1[i][1]/this.timeseries2[i+offset2][1]])
-        this.biggest_number.push(this.timeseries1[i][1]/this.timeseries2[i+offset2][1])
+        this.final_timeseries.push([this.timeseries2[i + offset2][0], this.timeseries1[i][1] / this.timeseries2[i + offset2][1]])
+        this.biggest_number.push(this.timeseries1[i][1] / this.timeseries2[i + offset2][1])
         // console.error(error)
       } catch (e) {
         console.error(e)
       }
     }
-  } 
+  }
   //timeseries2 = coingecko
   //timeseries1 = stocks
 
