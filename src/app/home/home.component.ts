@@ -39,8 +39,8 @@ export class HomeComponent implements OnInit {
   ]
   
   securities: string[] = ['A Cryptocurrency', 'A Stock/ETF', 'A Commodity', 'A Fiat Currency' ]
-  cryptos: string[] = ['Bitcoin', "Ethereum", "Chainlink", "Search list"]
-  stocks: string[] = ['GME', "AMC", "TSLA", "Search list"]
+  cryptos: string[] = ['Bitcoin', "Ethereum", "Chainlink", "Terra-Luna", "Tether", "Search list"]
+  stocks: string[] = ['GME', "AMC", "TSLA", "AMZN", "Search list"]
   commodities: string[] = ['Gold', "Crude Oil", "Coffee", "Search list"]
   fiats: string[] = ['USD', "CHF", "GBP", "Search list"]
 
