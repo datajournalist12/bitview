@@ -22,6 +22,7 @@ export class MessengerService {
 
   data: any = null
   setData(payload) {
+    console.log(payload)
     this.data = payload
   }
 

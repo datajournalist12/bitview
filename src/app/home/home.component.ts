@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { MessengerService } from '../messenger.service';
+import { MessengerService } from '../services/messenger.service';
 
 @Component({
   selector: 'app-home',
@@ -53,6 +53,7 @@ export class HomeComponent implements OnInit {
   }
 
   dataSubmission() {
+    console.log(this.submission)
     this.messageService.setData(this.submission)
   }
 }

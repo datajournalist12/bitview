@@ -1,6 +1,6 @@
 import { Component, ViewChild, OnInit, AfterViewInit, HostListener } from "@angular/core";
-import { HttpService } from "./../http.service";
-import { MessengerService } from "../messenger.service";
+import { HttpService } from "./../services/http.service";
+import { MessengerService } from "../services/messenger.service";
 import { firstValueFrom, lastValueFrom, Observable, Subscription } from "rxjs";
 import {
   ApexAxisChartSeries,
@@ -180,6 +180,7 @@ export class ChartsComponent implements OnInit {
   }
 
   async ngOnInit() {
+    console.log(this.messageService.getData())
     await this.getCoinGecko()
     await this.getAlphaVantage()
     this.zipper()
@@ -192,7 +193,7 @@ export class ChartsComponent implements OnInit {
   timeseries1: any;
   timeseries2: any;
 
-  stock_code: string = "TSLA"
+  stock_code: string = "AMZN"
   async getAlphaVantage() {
     let data = await firstValueFrom(this._http.getUrl(`https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${this.stock_code}&outputsize=full&apikey=BQCUKE3R9K0EQ76H`))
 
